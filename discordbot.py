@@ -155,6 +155,45 @@ async def find(ctx, url, word):
     await ctx.send("Found results on line")
     await ctx.send(results)
 
+# script that retreives the temperature and humidity from a HTU21D sensor
+import board
+from adafruit_htu21d import HTU21D
+@client.command()
+@commands.guild_only()
+async def temp_sensor(ctx):
+    i2c = board.I2C()
+    sensor = HTU21D(i2c)
+    await ctx.send("Getting information on User's Room...")
+    await ctx.send("Temperature is: %0.1f C" % sensor.temperature)
+    await ctx.send("Humidity is: %0.1f %%" % sensor.relative_humidity)
+@client.command()
+@commands.guild_only()
+
+# this script gets data from a local webserver that contain temp and humidity storaged on html lines 15 and 18
+async def temp_local(ctx):
+    await ctx.send("Getting information on Other User's Room...")
+    url = "http://192.168.1.1:1000" # change this to the IP
+    line1 = 15 # this is the line
+    line2 = 18
+    url1 = requests.get(url)
+    soup = BeautifulSoup(url1.content, 'html.parser')
+    text = open("boi.txt", "w")
+    text.write(soup.prettify())
+    text.close()
+    mylines = []
+    lineNumber = int(line1)
+    with open('storage.txt', 'rt') as myfile:
+        for myline in myfile:
+            mylines.append(myline)
+    end = (mylines[lineNumber])
+    await ctx.send(end)
+    lineNumber = int(line2)
+    with open('storage.txt', 'rt') as myfile:
+        for myline in myfile:
+            mylines.append(myline)
+    end = (mylines[lineNumber])
+    await ctx.send(end)
+
 
 # terminates the script remotely
 # CANNOT BE RESTARTED REMOTELY (unless second bot is active)
